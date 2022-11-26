@@ -5,12 +5,13 @@ SELECT oid, datname
 FROM pg_database;
 
 -- return all object on our postgres(tables)
-SELECT * FROM pg_class;
+SELECT *
+FROM pg_class;
 
--- heap(куча) or heap file --> file the contains all the data (rows) of our table.
--- tuple(кортеж) or Item --> Individual row from the table.
--- block or page --> The heap file is divided into many different 'blocks' or 'pages'. Each page/block stores some
--- number of rows.
+-- Heap(куча) or heap file --> File the contains all the data (rows) of our table.
+-- Tuple(кортеж) or Item   --> Individual row from the table.
+-- Block or page           --> The heap file is divided into many different 'blocks' or 'pages'.
+-- Each page/block stores some number of rows.
 
 -- directory var-14 is heap. iin the directory 'base' we have garbage our database. we can oid your database with
 -- command SELECT oid, datname FROM pg_database; we can see oid what we need and open the heap

@@ -1,5 +1,5 @@
--- how the index is work
--- firstly we load data from the hard store to the RAM and search rows that relatively large perform
+-- How the index is work?
+-- Firstly we load data from the hard store to the RAM and search rows that relatively large perform
 -- as database engineers we thy to minimize the amount of data that is being moved. Than we load table we make
 -- full table scan -- pg has to load many (or all) rows from the heap file to memory.
 -- we can add index to the block for quick search
@@ -28,7 +28,7 @@ CREATE INDEX ON users (first_name);
 
 -- and we can assign name to the index
 CREATE INDEX users_first_name_idx
-    on users (first_name);
+    ON users (first_name);
 
 -- how to drop the index
 DROP INDEX users_first_name_idx;
@@ -44,21 +44,22 @@ FROM users
 WHERE first_name = 'Mathilde';
 
 -- for check speed request we can use next request
-EXPLAIN ANALYSE SELECT *
-                FROM users
-                WHERE first_name = 'Mathilde';
+EXPLAIN ANALYSE
+SELECT *
+FROM users
+WHERE first_name = 'Mathilde';
 
--- why the index is not always used ?
--- 1. table with index used more RAM
--- you can check who many memory the index use with this request
+-- Why the index is not always used ?
+-- 1. Table with index used more RAM.
+-- You can check who many memory the index use with this request.
 
-SELECT pg_size_pretty(pg_relation_size('users'));
-SELECT pg_size_pretty(pg_relation_size('users_first_name_idx'));
--- users 8 kB
--- index of first_name 16 kB
+SELECT PG_SIZE_PRETTY(PG_RELATION_SIZE('users'));
+SELECT PG_SIZE_PRETTY(PG_RELATION_SIZE('users_first_name_idx'));
+-- Users 8 kB.
+-- Index of first_name 16 kB.
 
--- Downsides on index
--- 1. Can be large! Storage data from at least one column of the real table
+-- Downsides on index:
+-- 1. Can be large! Storage data from at least one column of the real table.
 -- 2. Slows down insert/update/delete - the index has to be updated!
 -- 3. Index might not actually get used!
 
@@ -70,54 +71,56 @@ SELECT pg_size_pretty(pg_relation_size('users_first_name_idx'));
 -- GIN     --> For columns that contain arrays or JSON data.
 -- BRIN    --> Specialized for really large dataset.
 
--- automatically generated indexes
--- postgres has automatically create index when we set UNIQUE for some column.
--- example hashtags into the instagram database id is the index because it an unique value
+-- Automatically generated indexes
+-- The Postgres has automatically create index when we set UNIQUE for some column
+-- example hashtags into the instagram database id is the index because it an unique value.
 
--- index create file in the heap. The heap contains
-
-SELECT * FROM pageinspect ('users_first_name_idx');
+-- Index create file in the heap. The heap contains
+SELECT *
+FROM pageinspect('users_first_name_idx');
 
 -- How postgres works with requests
--- 1. Firstly he got request and parses to the request to the request three -- it is description what is query we try to run
--- 2. Rewrite -- the postgres check request and add some property to the query.
--- 3. Then go Planner -- look at the query tree think what information we try to fetch and then come up with a series of
+-- 1. Firstly he got request and parses to the request to the request three -- It is description what is query we try to run
+-- 2. Rewrite         -- The postgres check request and add some property to the query.
+-- 3. Then go Planner -- Look at the query tree think what information we try to fetch and then come up with a series of
 -- different plans or strategies that could be used (index table or just fetch all data).
 -- 4. Execute query
 
--- EXPLAIN --> Build a query plan and display info about it.
--- EXPLAIN ANALYZE --> Build a query plan, run it, and info about it.
+-- EXPLAIN         --> Build a query plan and display info about it.
+-- EXPLAIN ANALYZE --> Build a query plan, speed of each query it and info about it.
 
 SELECT *
 FROM users AS U
-JOIN orders AS O ON U.id = O.user_id
+         JOIN orders AS O ON U.id = O.user_id
 WHERE first_name = 'Mathilde';
 
--- Add explain
-EXPLAIN SELECT *
+-- Add EXPLAIN
+EXPLAIN
+SELECT *
 FROM users AS U
-JOIN orders AS O ON U.id = O.user_id
+         JOIN orders AS O ON U.id = O.user_id
 WHERE first_name = 'Mathilde';
 
--- Add explain analyze
-EXPLAIN ANALYSE SELECT *
+-- Add EXPLAIN ANALYSE
+EXPLAIN ANALYSE
+SELECT *
 FROM users AS U
-JOIN orders AS O ON U.id = O.user_id
+         JOIN orders AS O ON U.id = O.user_id
 WHERE first_name = 'Mathilde';
 
--- different between explain and explain analyze
--- just explain -- return to us how many action we do
--- explain analyze -- return to us how many action we do + time require
+-- Different between explain and explain analyze
+-- just EXPLAIN    -- return to us how many action we do
+-- EXPLAIN ANALYZE -- return to us how many action we do + time require
 
--- return from explain analyze and explain is it steps.
--- firstly he do seq scan how make access all the different roads inside of a table.
--- secondary he check a hash how contains blocks in the table and check all indexes in blocks
+-- Return from explain analyze and explain is it steps.
+-- Firstly he do seq scan how make access all the different roads inside of a table.
+-- Secondly he check a hash how contains blocks in the table and check all indexes in blocks
 
--- explain what is cost, rows, width and actual time, rows, loops in response table
+-- Explain what is cost, rows, width and actual time, rows, loops in response table
 -- Hash Join --> how this node is generating data
--- cost --> Amount of processing power required for this step
--- rows --> A guess at how many rows this step will produce
--- width --> A guess at the average number of bytes of each row
+-- cost      --> Amount of processing power required for this step
+-- rows      --> A guess at how many rows this step will produce
+-- width     --> A guess at the average number of bytes of each row
 
 SELECT *
 FROM pg_stats

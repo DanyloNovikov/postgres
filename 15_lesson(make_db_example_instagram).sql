@@ -117,13 +117,13 @@ LIMIT 3;
 
 SELECT U.id, U.first_name AS count_orders
 FROM users AS U
-LEFT JOIN orders AS O ON U.id = O.user_id
+         LEFT JOIN orders AS O ON U.id = O.user_id
 GROUP BY U.id;
 
 SELECT U.id, U.first_name, P.name, P.department, O.paid
 FROM users AS U
-Full JOIN orders AS O ON U.id = O.user_id
-Full JOIN products AS P ON O.product_id = P.id;
+         FULL JOIN orders AS O ON U.id = O.user_id
+         FULL JOIN products AS P ON O.product_id = P.id;
 
-SELECT * FROM orders;
-
+SELECT *
+FROM orders;

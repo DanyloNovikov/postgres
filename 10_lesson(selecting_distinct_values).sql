@@ -1,7 +1,7 @@
-select distinct department
-from products;
+SELECT DISTINCT department
+FROM products;
 
--- distinct return unique values inside of a column
+-- Distinct return unique values inside of a column.
 
-select count(distinct department)
-from products;
+SELECT COUNT(DISTINCT department)
+FROM products;

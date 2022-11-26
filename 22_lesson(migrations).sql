@@ -3,7 +3,7 @@
 -- where we use schema migration ?
 -- for example we need to change name some column
 ALTER TABLE comments
-RENAME COLUMN contents TO body;
+    RENAME COLUMN contents TO body;
 
 -- Big Lesson #1 Changes to the DB structure and changes to clients need to be made at precisely tha same time
 -- Big Lesson #2 When working with other engineers, we need a really easy way to tie the structure of out database
@@ -13,9 +13,9 @@ RENAME COLUMN contents TO body;
 -- up -- contains a statement that advances, or upgrades, the structure of our DB.
 -- example:
 ALTER TABLE comments
-RENAME COLUMN contents TO body;
+    RENAME COLUMN contents TO body;
 
 -- down -- contains a statement that exactly undo`s the 'up' command
 -- example:
 ALTER TABLE comments
-RENAME COLUMN body TO contents;
+    RENAME COLUMN body TO contents;

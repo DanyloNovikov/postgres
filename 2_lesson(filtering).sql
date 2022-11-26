@@ -1,10 +1,11 @@
-
 -- How postgres analyze command ?
 -- select name, area from cities where area > 4000;
 -- ----------------- ----------- -----------------
 --       third          first         second
 
-select name, area from cities where area > 4000;
+SELECT name, area
+FROM cities
+WHERE area > 4000;
 
 -- Comparison Math Operations
 -- = are the values equal ?
@@ -18,24 +19,52 @@ select name, area from cities where area > 4000;
 -- between Is the value between two other values ?
 -- not in Is the value not present in a list ?
 
-select name, area from cities where area > 4000;
-select name, area from cities where area = 8223;
-select name, area from cities where area != 8223;
-select name, area from cities where area between 2000 and 4000;
-select name, area from cities where name in ('Delhi', 'Shanghai');
-select name, area from cities where name not in ('Delhi', 'Shanghai');
-select name, area from cities where area not in (8223, 3043) and name = 'Delhi';
-select name, area from cities where area not in (8223, 3043) or name = 'Delhi' or name = 'Tokyo';
+SELECT name, area
+FROM cities
+WHERE area > 4000;
 
--- we also can calculate some value in were request
-select
-    name, population / area as population_density
-from
-    cities
-where
-    population / area > 6000;
+SELECT name, area
+FROM cities
+WHERE area = 8223;
 
--- Update row
-update cities set population = 39505000 where name = 'Tokyo';
--- Delete row
-delete from cities where name = 'Tokyo';
+SELECT name, area
+FROM cities
+WHERE area != 8223;
+
+SELECT name, area
+FROM cities
+WHERE area BETWEEN 2000 AND 4000;
+
+SELECT name, area
+FROM cities
+WHERE name IN ('Delhi', 'Shanghai');
+
+SELECT name, area
+FROM cities
+WHERE name NOT IN ('Delhi', 'Shanghai');
+
+SELECT name, area
+FROM cities
+WHERE area NOT IN (8223, 3043)
+  AND name = 'Delhi';
+
+SELECT name, area
+FROM cities
+WHERE area NOT IN (8223, 3043)
+   OR name = 'Delhi'
+   OR name = 'Tokyo';
+
+-- We can also calculate some value in where.
+SELECT name,
+       population / area AS population_density
+FROM cities
+WHERE population / area > 6000;
+
+-- Update row.
+UPDATE cities
+SET population = 39505000
+WHERE name = 'Tokyo';
+-- Delete row.
+DELETE
+FROM cities
+WHERE name = 'Tokyo';

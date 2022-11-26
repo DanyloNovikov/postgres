@@ -1,89 +1,76 @@
-select name, price
-from products
-where price > (select max(price)
-               from products
-               where department = 'Toys');
+SELECT name, price
+FROM products
+WHERE price > (SELECT MAX(price)
+               FROM products
+               WHERE department = 'Toys');
 
--- Мы можем вкладывать запросы куда угодно вот пример запроса в SELECT
+-- We can insert sub-query in any path our request: SELECT, FROM, JOIN, WHERE.
 
-select p1.name,
-       (select count(name) from products)
-from (select * from products) as p1
-         join (select * from products) as p2 on p1.id = p2.id
-where p1.id in (select id from products);
+SELECT p1.name,
+       (SELECT COUNT(name) FROM products)
+FROM (SELECT * FROM products) AS p1
+         JOIN (SELECT * FROM products) AS p2 ON p1.id = p2.id
+WHERE p1.id IN (SELECT id FROM products);
 
--- как можно здесь увидеть
+SELECT name, (price / weight) AS price_weight_ratio
+FROM products;
 
-select name, price, (
-    select price from products where id = 3
-)
-from products
-where price > 867;
+-- More important is an order query
+-- 1. firstly run the JOIN command.
+-- 2. secondly run the FROM command.
+-- 3. then run the WHERE and then the SELECT.
 
--- Пример саб запроса в from
+-- sub-query -- must returned only 1 column for SELECT !!!
+SELECT department, MAX(price), COUNT(*)
+FROM products
+GROUP BY department;
 
-select name, price / weight as price_weight_ratio
-from products;
+-- Example sub-query in the SELECT:
+SELECT name,
+       price,
+       (SELECT price
+        FROM products
+        WHERE id = 3)
+FROM products
+WHERE price > 867;
 
--- важный нюанс который не следует запоминать
--- что в select будут выбираться колонки из той таблицы которую мы указали в from об этом просто не стоит забывать
--- я это говорю к тому что мы можем сделать какие-то операции подзапросом в from и нам вернеться совершенно не та
--- таблица которую мы ожидаем
+-- We can make filtering in WHERE from table what we select with sub-query from FROM.
+-- Example:
+SELECT name, price_weight_ratio
+FROM (SELECT name, price / weight AS price_weight_ratio
+      FROM products) AS p
+WHERE price_weight_ratio > 5;
 
--- example:
-select name, price_weight_ratio
-from (
-    select name, price / weight as price_weight_ratio
-    from products
-) as p
-where price_weight_ratio > 5;
+-- Next example usage sub-query:
+SELECT *
+FROM (SELECT MAX(price)
+      FROM products) AS p;
 
--- предварительно сделав выборку в таблице мы можем восопользоваться колонками которые были в этой таблице
+SELECT AVG(order_count)
+FROM (SELECT user_id, COUNT(*) AS order_count
+      FROM orders
+      GROUP BY user_id) AS p;
 
--- Другой пример использования подзапроса
+-- Example sub-query in the JOIN:
+SELECT first_name
+FROM users
+         JOIN (SELECT user_id
+               FROM orders
+               WHERE product_id = 3) AS o
+              ON o.user_id = users.id;
 
-select *
-from (
-    select max(price)
-    from products
-) as p;
+-- Example sub-query in the WHERE:
+SELECT *
+FROM orders
+WHERE product_id IN (SELECT id
+                     FROM products
+                     WHERE (price / weight) > 50);
 
--- еще один пример использования подзапроса там где он реально может потребоваться
--- агрегаторные функции не могут вызывать сами себя avg(count(*)) но мы можем использовать подзапросы для
-select AVG(order_count)
-from (
-    select user_id, count(*) as order_count
-    from orders
-    group by user_id
-) as p;
+SELECT id
+FROM products
+WHERE (price / weight) > 5;
 
--- использование подзапросов в JOIN
-
-select first_name
-from users
-join (
-    select user_id from orders where product_id = 3
-) as o
-on o.user_id = users.id;
-
--- так же мы можем использовать подзапросы в where
--- мы можем использовать подзапрос что бы получить список элементов для in и not in
--- что бы потом можно было найти элемент который есть в этом списке вот приимер использования
-
-select *
-from orders
-where product_id in (
-    select id from products
-    where (price / weight) > 50
-);
-
-select id
-from products
-where (price / weight) > 5;
-
--- К каким оператором какие данные применяються
--- Operator in the
--- where clause
+-- Which operator to which data to apply operators.
 -- >               == Single value
 -- <               == Single value
 -- >=              == Single value
@@ -99,83 +86,63 @@ where (price / weight) > 5;
 -- = ALL/SOME/ANY  == Single column
 -- <> ALL/SOME/ANY == Single column
 
-select name
-from products
-where price > (
-    select avg(price)
-    from products
-);
+SELECT name
+FROM products
+WHERE price > (SELECT AVG(price)
+               FROM products);
 
--- example how we can use not in
+-- Example how we can use not in.
+SELECT name
+FROM products
+WHERE department NOT IN (SELECT department
+                         FROM products
+                         WHERE price < 100);
 
-select name
-from products
-where department not in (
-    select department
-    from products
-    where price < 100
-);
+SELECT name, department, price
+FROM products
+WHERE price > ALL (SELECT price
+                   FROM products
+                   WHERE department = 'Industrial');
 
-select name, department, price
-from products
-where price > ALL (
-    select price
-    from products
-    where department = 'Industrial'
-);
+-- How to use > SOME.
+SELECT name, department, price
+FROM products
+WHERE price > SOME (SELECT price
+                    FROM products
+                    WHERE department = 'Industrial');
 
--- how to use > SOME
-
-select name, department, price
-from products
-where price > some (
-    select price
-    from products
-    where department = 'Industrial'
- );
-
--- subquery -- must returned only 1 column
-
-select department, max(price), count(*)
-from products
-group by department;
-
--- Make iteration
-select name, department, price
-from products as p1
-where p1.price =  (
-    select max(price)
-    from products AS p2
-    where p2.department = p1.department
-);
+-- Make iteration.
+SELECT name, department, price
+FROM products AS p1
+WHERE p1.price = (SELECT MAX(price)
+                  FROM products AS p2
+                  WHERE p2.department = p1.department);
 
 -- firstly we call first request and get p1
--- Как же работает where ?
--- это очень важно для понимания как пользоваться с употребление subrequest
--- where вызываеться каждый раз когда для каждой строки благодаря этому мы можем реализовать свою итерацию
--- тоесть с самого начала мы вызываем from который нам будет возвращать таблицу по строчно и в where
--- но из этого получиться скорее цикл в цикле после того как все итерации в спомогательном запросе пройдут у нас пройдут
+-- Who is WHERE work ?
+-- It is very important to understand how to use sub-request
+-- where is called each time for each line because of this we can implement a different iteration
+-- that is, from the beginning we call from, which will return the table row by row and in where
+-- but this would rather make a loop in a loop after all the iterations in the auxiliary query have passed us.
 
--- Without using a join or a group by, print the number of orders for each product
+-- Without using a JOIN or a GROUP BY, print the number of orders for each product.
+SELECT product_id, paid
+FROM orders AS o
+WHERE product_id = (SELECT id
+                    FROM products AS p
+                    WHERE p.id = o.product_id
+                      AND o.paid = TRUE);
 
-select product_id, paid
-from orders as o
-where product_id = (
-    select id
-    from products as p
-    where p.id = o.product_id and o.paid = true
-);
+SELECT COUNT(*)
+FROM orders;
+SELECT COUNT(*)
+FROM products;
 
-select count(*) from orders;
-select count(*) from products;
+SELECT name
+FROM products AS p1;
 
-select name
-from products as p1;
-
-select p1.name,
-     (
-        select count(*)
-        from orders as o1
-        where o1.product_id = p1.id
-    ) as num_orders
-from products as p1;
+SELECT p1.name,
+       (SELECT COUNT(*)
+        FROM orders AS o1
+        WHERE o1.product_id = p1.id) AS num_orders
+FROM products AS p1;

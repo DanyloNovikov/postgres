@@ -1,10 +1,10 @@
 -- get most popular user
-SELECT username, count(*)
+SELECT username, COUNT(*)
 FROM users
-JOIN (
-    SELECT user_id FROM photo_tags
-    UNION ALL
-    SELECT user_id FROM caption_tags
-) AS tags ON tags.user_id = users.id
+         JOIN (SELECT user_id
+               FROM photo_tags
+               UNION ALL
+               SELECT user_id
+               FROM caption_tags) AS tags ON tags.user_id = users.id
 GROUP BY username
-ORDER BY count(*) DESC;
+ORDER BY COUNT(*) DESC;

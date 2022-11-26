@@ -1,4 +1,3 @@
-
 -- Grouping
 -- Reduces many rows down to fewer rows
 -- Done by using the 'GROUP BY' keyword
@@ -8,69 +7,65 @@
 -- Reduces many values down to one
 -- Done by using 'aggregate functions'
 
--- Возможно тупо что на не на английском но это нужно описать как можно подробнее
--- как работает group_by он работает следующим образом:
--- 1. во первых фуункционал из названия он групирует елементы по заданному елементу
+-- The GROUP BY work by next:
+-- 1. Firstly GROUP BY has group rows by some column for example user_id
 
-select user_id
-from comments
-group by user_id;
+SELECT user_id
+FROM comments
+GROUP BY user_id;
 
--- конкретно в этом примере у нас есть коментарии у которых есть связь с таблицей user через user_id
--- мы групирует наши записи в таблице comment по user наши записи буду отсортированный по пользователям
--- но если мы укажем * то словим ошибку с 'агрегацией' ;
+-- in this example you can see that we group all rows from the table comments by user_id
+-- but if we try group rows by *
+-- we had an error, because for GROUP BY must be some value for grouping. the value for grouping must be some uniq for
+-- example it can be references id
 
-select *
-from comments
-group by contents;
+SELECT *
+FROM comments
+GROUP BY contents;
 
--- что значит aggregate function ? давай посмотрим прямо сейчас.
--- Функции агрегата возвращают какое-то подсчитаное значение
+-- what is aggregate function ?
+-- Aggregate function -- return calculate value from group.
 
--- count() ==> return the number of value in a group of value.
--- sum()   ==> finds the sum of a group of numbers.
--- avg()   ==> finds the average of a group of numbers.
--- min()   ==> returns the minimum value from a group of numbers.
--- max()   ==> returns the maximum value from a group of numbers.
+-- COUNT() ==> return the number of value in a group of value.
+-- SUM()   ==> finds the sum of a group of numbers.
+-- AVG()   ==> finds the average of a group of numbers.
+-- MIN()   ==> returns the minimum value from a group of numbers.
+-- MAX()   ==> returns the maximum value from a group of numbers.
 
-select max(id)
-from comments;
+SELECT MAX(id)
+FROM comments;
 
 -- Combining group by and aggregate;
 
-select user_id
-from comments
-group by user_id;
+SELECT user_id
+FROM comments
+GROUP BY user_id;
 
--- почему это отдельная тема использования функций агрегации и group by вместе ? потому что эти функции будут
--- будет применяться индивидуально к каждой группе;
+SELECT user_id, COUNT(id)
+FROM comments
+GROUP BY user_id;
 
-select user_id, count(id)
-from comments
-group by user_id;
+-- There are only 5 groups because we have grouped them by user and
+-- there are only 5 users and specified that in each group we need maximum id.
 
--- всего 5 груп потому что мы сгрупироали по юзерам а всего 5 юзеров и указали что в каждой группе нам нужен
--- максимальный id
+-- Remember all keywords
+-- FROM     ==> specifies starting set of rows to work with;
+-- JOIN     ==> merges in data from additional table;
+-- WHERE    ==> filters the set of rows;
+-- GROUP BY ==> groups rows by a unique set of values;
+-- HAVING   ==> filters the set of groups;
 
--- remember all keywords
--- from     ==> specifies starting set of rows to work with;
--- join     ==> merges in data from additional table;
--- where    ==> filters the set of rows;
--- group by ==> groups rows by a unique set of values;
--- having   ==> filters the set of groups;
+-- Having it has a kind of filter for filtering (sampling data)
+-- only it is used for sampling groups we never use HAVING without GROUP BY.
 
--- having своеобразный фильтр для фильтрации(выборки данных) только он используеться для выборки груп
--- мы никогда не встратим having без group by.
+SELECT photos_id, COUNT(*)
+FROM comments
+WHERE photos_id < 3
+GROUP BY photos_id
+HAVING COUNT(*) > 2;
 
-select photos_id, count(*)
-from comments
-where photos_id < 3
-group by photos_id
-having count(*) > 2;
-
-select user_id, count(photos_id)
-from comments
-where photos_id > 2
-group by user_id
-having count(photos_id) > 11;
-
+SELECT user_id, COUNT(photos_id)
+FROM comments
+WHERE photos_id > 2
+GROUP BY user_id
+HAVING COUNT(photos_id) > 11;
